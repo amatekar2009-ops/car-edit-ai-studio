@@ -13,7 +13,7 @@
 <label for="notes">Edit notes (for your reference)</label><input id="notes" name="notes" maxlength="1000" placeholder="e.g. Replace the white SUV with my white Innova Crysta">
 <button id="submit" type="submit">Start AI car replacement</button></form>
 <div class="preview" id="preview"></div><div class="status" id="status">Choose your video and car photos to begin.</div></section>
-<p><small>Processing uses a third-party AI provider. Upload only footage and photos you have permission to use. Temporary provider input files expire automatically; generated output links are temporary.</small></p></main>
+<p style="text-align:center;margin-top:22px"><small>AI video processing powered by <a href="https://runway.com" target="_blank" rel="noopener noreferrer">Runway</a>.</small></p><p><small>Processing uses a third-party AI provider. Upload only footage and photos you have permission to use. Temporary provider input files expire automatically; generated output links are temporary.</small></p></main>
 <script>
 const form=document.querySelector('#jobForm'),box=document.querySelector('#status'),btn=document.querySelector('#submit'),notice=document.querySelector('#engineNotice');
 fetch('/health').then(r=>r.json()).then(d=>{notice.textContent=d.engine_connected?'AI engine configured. Each render may use paid provider credits. Ask a parent or guardian before starting a render.':'AI engine code is installed, but the server API key has not been configured. No paid render can start yet.'}).catch(()=>{notice.textContent='Could not check engine status.'});
