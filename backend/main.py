@@ -15,8 +15,8 @@ app = FastAPI(title="Car Edit AI Studio API", version="0.2.0")
 ROOT = Path(__file__).resolve().parent.parent
 RUNWAY_BASE = "https://api.dev.runwayml.com"
 RUNWAY_VERSION = "2024-11-06"
-MAX_VIDEO_BYTES = 200 * 1024 * 1024
-MAX_IMAGE_BYTES = 15 * 1024 * 1024
+MAX_VIDEO_BYTES = 100 * 1024 * 1024
+MAX_IMAGE_BYTES = 8 * 1024 * 1024
 JOBS = {}
 
 def verify_app_access(request: Request):
@@ -105,7 +105,8 @@ def home():
 
 @app.post("/jobs")
 async def create_job(
-    request: Request,\n    video: UploadFile = File(...),
+    request: Request,
+    video: UploadFile = File(...),
     references: List[UploadFile] = File(...),
     original_car: Optional[UploadFile] = File(None),
     duration: int = Form(8),
@@ -115,8 +116,8 @@ async def create_job(
     verify_app_access(request)
     if not video.content_type or not video.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Please upload a video file.")
-    if not references or len(references) > 10:
-        raise HTTPException(status_code=400, detail="Upload between 1 and 10 replacement-car photos.")
+    if not references or len(references) > 8:
+        raise HTTPException(status_code=400, detail="Upload between 1 and 8 replacement-car photos.")
     if duration < 4 or duration > 15:
         raise HTTPException(status_code=400, detail="Choose a duration between 4 and 15 seconds.")
     if quality not in ("720p", "1080p"):
