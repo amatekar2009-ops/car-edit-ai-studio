@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: car-edit-ai-studio
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
