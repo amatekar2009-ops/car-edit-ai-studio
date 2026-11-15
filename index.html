@@ -1,23 +1,177 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Car Edit AI Studio</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18">
+<meta name="description" content="Replace a vehicle in a short video using AI-powered video editing.">
+<title>Car Edit AI Studio — Realistic AI vehicle edits</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#090d16;color:#f5f7fb;font:16px system-ui,Arial}main{max-width:760px;margin:auto;padding:28px 16px 60px}h1{font-size:clamp(2rem,7vw,3.4rem);margin:12px 0}p{color:#aab5c7;line-height:1.55}.tag{display:inline-block;border:1px solid #39445a;border-radius:99px;padding:6px 10px;color:#b7c7ff;font-size:.8rem}.card{background:#121a2a;border:1px solid #27344b;border-radius:18px;padding:20px;margin:16px 0}label{display:block;font-weight:650;margin:14px 0 8px}input,select,button{width:100%;padding:13px;border-radius:10px;border:1px solid #39445a;background:#0c1321;color:#fff;font:inherit}button{background:#6b7cff;border:0;font-weight:750;margin-top:18px}button:disabled{opacity:.5}.notice{border-left:3px solid #e5b85c;padding:10px 12px;background:#211d15;color:#f4dba8;border-radius:6px}.status{white-space:pre-wrap;color:#c8d4ff;background:#0c1321;padding:12px;border-radius:10px;margin-top:14px;overflow-wrap:anywhere}.preview{display:flex;gap:12px;flex-wrap:wrap}.preview img,.preview video{max-width:100%;max-height:180px;border-radius:10px}small{color:#96a4ba}a{color:#b7c7ff}
-</style></head><body><main><header><span class="tag">AI VIDEO WORKFLOW</span><h1>Car Edit<br>AI Studio</h1><p>Replace the vehicle in a short video using photos of the replacement car. The edit is processed by a connected video AI service.</p></header>
-<div class="notice" id="engineNotice">Checking engine connection… Video generation requires a separately configured provider account and credits. Ask a parent or guardian to manage any account or payment setup.</div>
-<section class="card"><form id="jobForm">
-<label for="accessCode">Private site access code</label><input id="accessCode" type="password" autocomplete="current-password" required placeholder="Ask the account owner for the code">\n<label for="video">Original car video (MP4/MOV/WebM, 1.8–15 seconds)</label><input id="video" name="video" type="file" accept="video/mp4,video/quicktime,video/webm" required>
-<label for="original">Photo of the original car (recommended)</label><input id="original" name="original_car" type="file" accept="image/*"><small>If you skip this, the app will use a frame from your video. A clear photo of the original car usually gives a better match.</small>
-<label for="refs">Replacement car photos (1–8, different angles help)</label><input id="refs" name="references" type="file" accept="image/*" multiple required>
-<label for="duration">Output duration</label><select id="duration" name="duration"><option value="8">8 seconds</option><option value="4">4 seconds</option><option value="6">6 seconds</option><option value="10">10 seconds</option><option value="12">12 seconds</option><option value="15">15 seconds</option></select>
-<label for="quality">Output quality</label><select id="quality" name="quality"><option>720p</option><option>1080p</option></select>
-<label for="notes">Edit notes (for your reference)</label><input id="notes" name="notes" maxlength="1000" placeholder="e.g. Replace the white SUV with my white Innova Crysta">
-<button id="submit" type="submit">Start AI car replacement</button></form>
-<div class="preview" id="preview"></div><div class="status" id="status">Choose your video and car photos to begin.</div></section>
-<p style="text-align:center;margin-top:22px"><small>AI video processing powered by <a href="https://runway.com" target="_blank" rel="noopener noreferrer">Runway</a>.</small></p><p><small>Processing uses a third-party AI provider. Upload only footage and photos you have permission to use. Temporary provider input files expire automatically; generated output links are temporary.</small></p></main>
+:root{color-scheme:dark;--bg:#080d18;--panel:#101a2b;--panel2:#0b1423;--line:#263750;--muted:#9aabc2;--text:#f4f7fc;--blue:#7c9cff;--cyan:#64e2d0;--gold:#f3c879;--danger:#ff9b9b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 80% -10%,#1b3151 0,transparent 38%),radial-gradient(ellipse at 0 35%,#10253a 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+button,input,select{font:inherit}
+a{color:#a9c3ff}
+.shell{max-width:1120px;margin:auto;padding:24px 18px 64px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0 28px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.02em}
+.logo{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#8da8ff,#53d7c8);color:#07111d;font-size:21px;box-shadow:0 8px 28px #5c9cff35}
+.pill{border:1px solid #35506a;background:#0d1a2b;color:#b9d5e8;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:20px 0 30px}
+.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:clamp(2.35rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.055em;margin:12px 0 16px;max-width:700px}
+h1 span{background:linear-gradient(90deg,#a9c3ff,#66e5d0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:#b3c0d2;font-size:17px;max-width:620px;margin:0}
+.hero-card{border:1px solid #314761;background:linear-gradient(145deg,#15253a,#0d1727);border-radius:22px;padding:22px;box-shadow:0 24px 70px #0004}
+.hero-card strong{display:block;font-size:15px;margin-bottom:12px}
+.steps{display:grid;gap:12px}
+.step{display:flex;gap:12px;align-items:center;color:#c0ccdc;font-size:13px}
+.step b{width:28px;height:28px;border-radius:9px;background:#213653;color:#b9d1ff;display:grid;place-items:center;flex:none}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.65fr);gap:18px;align-items:start}
+.card{border:1px solid var(--line);border-radius:20px;background:linear-gradient(160deg,#111d30,#0c1524);padding:22px;box-shadow:0 18px 55px #0003}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px}
+h2{font-size:20px;letter-spacing:-.025em;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.section{padding:18px 0;border-top:1px solid #24344a}
+.section:first-of-type{border-top:0;padding-top:0}
+.field-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+label{font-size:14px;font-weight:700}
+.hint{font-size:12px;color:#879ab3}
+input[type=password],select,input[type=text]{width:100%;border:1px solid #33465f;border-radius:12px;background:#091322;color:var(--text);padding:13px 14px;outline:none;transition:border .15s,box-shadow .15s}
+input:focus,select:focus{border-color:#8aa8ff;box-shadow:0 0 0 3px #7c9cff20}
+.filebox{display:block;border:1px dashed #48617f;border-radius:15px;background:#0a1525;padding:18px;text-align:center;cursor:pointer;transition:.2s}
+.filebox:hover,.filebox.drag{border-color:#8daaff;background:#12233a}
+.filebox input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.fileicon{width:38px;height:38px;margin:0 auto 8px;border-radius:12px;background:#1c3150;color:#a9c3ff;display:grid;place-items:center;font-size:20px}
+.filebox strong{display:block;font-size:14px}
+.filebox span{display:block;color:#91a4bc;font-size:12px;margin-top:4px}
+.preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.preview:empty{display:none}
+.preview-item{position:relative;width:94px;height:76px;border:1px solid #34465e;border-radius:10px;overflow:hidden;background:#091322}
+.preview-item img,.preview-item video{width:100%;height:100%;object-fit:cover}
+.preview-item.video{width:160px}
+.file-count{color:#a9c3ff;font-size:12px;margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+select{appearance:auto}
+.primary{width:100%;border:0;border-radius:13px;padding:15px 18px;margin-top:18px;background:linear-gradient(100deg,#87a5ff,#61ddcf);color:#07121d;font-weight:850;font-size:15px;cursor:pointer;box-shadow:0 12px 30px #66cfcf22;transition:transform .15s,filter .15s}
+.primary:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.primary:disabled{opacity:.55;cursor:wait;transform:none}
+.notice{display:flex;gap:10px;align-items:flex-start;border:1px solid #665538;background:#241f16;color:#f3d8a1;padding:12px 14px;border-radius:13px;font-size:12px;margin-bottom:18px}
+.notice.ok{border-color:#2c665f;background:#10251f;color:#a8e9d9}
+.notice .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);margin-top:5px;flex:none}
+.notice.ok .dot{background:var(--cyan)}
+.side{position:sticky;top:16px;display:grid;gap:14px}
+.info{padding:18px}
+.info h3{font-size:14px;margin:0 0 9px}
+.info p,.info li{font-size:12px;color:#9eafc5}
+.info ul{padding-left:18px;margin:8px 0 0}
+.info li{margin:7px 0}
+.status{border:1px solid #344b68;background:#091422;border-radius:13px;padding:14px;margin-top:16px;min-height:62px;color:#b9c9e0;font-size:13px;overflow-wrap:anywhere}
+.status strong{color:#f3f7ff}
+.status.error{border-color:#75434b;color:#ffc1c1}
+.status.success{border-color:#2e6d60;color:#b4f0df}
+.status a{font-weight:800}
+.progress{height:5px;background:#1d2c40;border-radius:9px;overflow:hidden;margin-top:12px}
+.progress>span{display:block;width:0;height:100%;background:linear-gradient(90deg,#8aa7ff,#65dfce);transition:width .3s}
+.footer{text-align:center;color:#71839c;font-size:11px;padding:28px 8px 0}
+.footer p{margin:7px 0}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.hero-card{max-width:600px}.layout{grid-template-columns:1fr}.side{position:static;grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.shell{padding:15px 12px 44px}.topbar{padding-bottom:14px}.hero{padding:18px 0 22px;gap:18px}.hero-card,.card{padding:17px;border-radius:17px}.side{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.pill{font-size:10px}.lead{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="topbar" aria-label="Main">
+  <div class="brand"><div class="logo" aria-hidden="true">✦</div><span>CAR EDIT <span style="color:#8faeff">AI STUDIO</span></span></div>
+  <span class="pill">AI VIDEO WORKFLOW</span>
+</nav>
+<header class="hero">
+  <div>
+    <div class="eyebrow">Bring your car edit to life</div>
+    <h1>One video.<br><span>A whole new ride.</span></h1>
+    <p class="lead">Replace the vehicle in your clip with a car of your choice. Add a video, share clear reference photos, and send your edit to the AI workflow.</p>
+  </div>
+  <div class="hero-card">
+    <strong>How it works</strong>
+    <div class="steps">
+      <div class="step"><b>01</b><span>Upload your original video</span></div>
+      <div class="step"><b>02</b><span>Add photos of the replacement car</span></div>
+      <div class="step"><b>03</b><span>Choose quality and start processing</span></div>
+    </div>
+  </div>
+</header>
+<div class="layout">
+  <main class="card">
+    <div class="card-head"><div><h2>Create your car edit</h2><p class="sub">Use a short clip with the vehicle clearly visible.</p></div><span class="pill">STEP 1–3</span></div>
+    <div class="notice" id="engineNotice" role="status" aria-live="polite"><span class="dot"></span><span>Checking AI engine connection…</span></div>
+    <form id="jobForm">
+      <div class="section">
+        <div class="field-title"><label for="accessCode">Private access code</label><span class="hint">Required</span></div>
+        <input id="accessCode" type="password" autocomplete="current-password" required placeholder="Enter your site access code">
+        <p class="hint">Keep this code private. The site owner should manage access settings.</p>
+      </div>
+      <div class="section">
+        <div class="field-title"><label for="video">1. Original car video</label><span class="hint">MP4 · MOV · WebM</span></div>
+        <label class="filebox" id="videoDrop" for="video"><div class="fileicon">↥</div><strong>Choose a video or drop it here</strong><span>Recommended: 4–15 seconds · Max 100 MB</span><input id="video" name="video" type="file" accept="video/mp4,video/quicktime,video/webm" required></label>
+        <div class="preview" id="videoPreview"></div>
+      </div>
+      <div class="section">
+        <div class="field-title"><label for="original">2. Original vehicle photo</label><span class="hint">Optional, but recommended</span></div>
+        <label class="filebox" for="original"><div class="fileicon">▧</div><strong>Add a photo of the car in your video</strong><span>A clear photo helps identify the vehicle to replace.</span><input id="original" name="original_car" type="file" accept="image/*"></label>
+        <div class="preview" id="originalPreview"></div>
+      </div>
+      <div class="section">
+        <div class="field-title"><label for="refs">3. Replacement car photos</label><span class="hint">1–8 images · Max 8 MB each</span></div>
+        <label class="filebox" for="refs"><div class="fileicon">＋</div><strong>Add replacement car photos</strong><span>Front, side and rear angles can help the AI understand the car.</span><input id="refs" name="references" type="file" accept="image/*" multiple required></label>
+        <div class="file-count" id="refCount">No replacement photos selected</div>
+        <div class="preview" id="refsPreview"></div>
+      </div>
+      <div class="section">
+        <div class="grid2">
+          <div><div class="field-title"><label for="duration">Output length</label></div><select id="duration" name="duration"><option value="4">4 seconds</option><option value="6">6 seconds</option><option value="8" selected>8 seconds</option><option value="10">10 seconds</option><option value="12">12 seconds</option><option value="15">15 seconds</option></select></div>
+          <div><div class="field-title"><label for="quality">Output quality</label></div><select id="quality" name="quality"><option value="720p">720p · Standard</option><option value="1080p">1080p · High resolution</option></select></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="field-title"><label for="notes">Edit description</label><span class="hint">Optional</span></div>
+        <input id="notes" name="notes" type="text" maxlength="1000" placeholder="Example: Replace the white SUV with my white Innova Crysta">
+      </div>
+      <button class="primary" id="submit" type="submit">Start AI car replacement <span aria-hidden="true">→</span></button>
+    </form>
+    <div class="status" id="status" role="status" aria-live="polite">Your upload and processing status will appear here.</div>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+  </main>
+  <aside class="side">
+    <section class="card info"><h3>✧ Tips for a better result</h3><ul><li>Choose a clip where the original car is easy to see.</li><li>Use clear, well-lit photos of the replacement car.</li><li>Include front, side and rear views when possible.</li><li>Choose a similar vehicle shape for the most natural swap.</li></ul></section>
+    <section class="card info"><h3>Before you start</h3><p>Video generation uses a third-party AI provider and may consume paid credits. Ask the adult account owner before starting a render. This prototype does not yet include customer payments or guaranteed processing.</p></section>
+    <section class="card info"><h3>Privacy & files</h3><p>Upload only videos and images you have permission to use. Provider uploads and result links may be temporary. Save a finished video promptly.</p></section>
+  </aside>
+</div>
+<footer class="footer">
+  <p>AI video processing powered by <a href="https://runway.com" target="_blank" rel="noopener noreferrer">Runway</a>.</p>
+  <p>Car Edit AI Studio · Prototype interface</p>
+</footer>
+</div>
 <script>
-const form=document.querySelector('#jobForm'),box=document.querySelector('#status'),btn=document.querySelector('#submit'),notice=document.querySelector('#engineNotice');
-fetch('/health').then(r=>r.json()).then(d=>{notice.textContent=d.engine_connected?'AI engine configured. Each render may use paid provider credits. Ask a parent or guardian before starting a render.':'AI engine code is installed, but the server API key has not been configured. No paid render can start yet.'}).catch(()=>{notice.textContent='Could not check engine status.'});
-form.addEventListener('change',()=>{const v=document.querySelector('#video').files[0],refs=[...document.querySelector('#refs').files],original=document.querySelector('#original').files[0],p=document.querySelector('#preview');p.innerHTML='';if(v){const el=document.createElement('video');el.controls=true;el.src=URL.createObjectURL(v);p.append(el)}[...(original?[original]:[]),...refs].forEach(f=>{const im=document.createElement('img');im.src=URL.createObjectURL(f);im.alt='Car reference';p.append(im)})});
-async function poll(jobId){for(let i=0;i<90;i++){await new Promise(r=>setTimeout(r,6000));const r=await fetch('/jobs/'+jobId,{headers:{'X-App-Code':document.querySelector('#accessCode').value}}),d=await r.json();if(!r.ok)throw Error(d.detail||'Could not check job');box.textContent='Job: '+jobId+'\nStatus: '+d.status+'\nYour video is processing. Please keep this page open.';if(d.status==='SUCCEEDED'&&d.output_url){box.innerHTML='Your AI edit is ready!<br><a target="_blank" rel="noopener" href="'+d.output_url+'">Open finished MP4</a><br><small>Save it soon; provider links expire.</small>';return}if(['FAILED','CANCELED'].includes(d.status))throw Error(d.error||'The provider could not finish this edit.')}box.textContent+='\nThis is taking longer than expected. You can refresh later and check the job again.'}
-form.addEventListener('submit',async e=>{e.preventDefault();if(document.querySelector('#refs').files.length>8){box.textContent='Please select no more than 8 photos.';return}btn.disabled=true;box.textContent='Uploading video and photos to the AI provider…';try{const code=document.querySelector('#accessCode').value;const r=await fetch('/jobs',{method:'POST',headers:{'X-App-Code':code},body:new FormData(form)}),d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');box.textContent='AI edit started. Job: '+d.job_id+'\nStatus: '+d.status;await poll(d.job_id)}catch(x){box.textContent='Could not complete request: '+x.message}finally{btn.disabled=false}});
-</script></body></html>
+const form=document.querySelector('#jobForm');
+const box=document.querySelector('#status');
+const btn=document.querySelector('#submit');
+const notice=document.querySelector('#engineNotice');
+const progress=document.querySelector('#progressBar');
+const codeInput=document.querySelector('#accessCode');
+function setStatus(message,kind=''){box.className='status'+(kind?' '+kind:'');box.textContent=message}
+function showPreview(file,container,video=false){container.replaceChildren();if(!file)return;const wrap=document.createElement('div');wrap.className='preview-item'+(video?' video':'');const el=document.createElement(video?'video':'img');el.src=URL.createObjectURL(file);if(video){el.controls=true;el.playsInline=true}else el.alt=file.name;wrap.append(el);container.append(wrap)}
+function showImagePreviews(files,container){container.replaceChildren();files.forEach(file=>{const wrap=document.createElement('div');wrap.className='preview-item';const img=document.createElement('img');img.src=URL.createObjectURL(file);img.alt=file.name;wrap.append(img);container.append(wrap)})}
+document.querySelector('#video').addEventListener('change',e=>showPreview(e.target.files[0],document.querySelector('#videoPreview'),true));
+document.querySelector('#original').addEventListener('change',e=>showPreview(e.target.files[0],document.querySelector('#originalPreview')));
+document.querySelector('#refs').addEventListener('change',e=>{const files=[...e.target.files];document.querySelector('#refCount').textContent=files.length+' replacement photo'+(files.length===1?'':'s')+' selected';showImagePreviews(files,document.querySelector('#refsPreview'))});
+const drop=document.querySelector('#videoDrop');
+['dragenter','dragover'].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(type=>drop.addEventListener(type,e=>{e.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>{const file=e.dataTransfer.files[0];if(file&&file.type.startsWith('video/')){const transfer=new DataTransfer();transfer.items.add(file);document.querySelector('#video').files=transfer.files;showPreview(file,document.querySelector('#videoPreview'),true)}});
+fetch('/health').then(r=>{if(!r.ok)throw Error('Health check unavailable');return r.json()}).then(d=>{const text=notice.querySelector('span:last-child');if(d.engine_connected){notice.classList.add('ok');text.textContent='AI engine appears configured. A render may use paid provider credits.'}else{text.textContent='AI engine is not fully configured yet. No render can start until the adult account owner finishes server setup.'}}).catch(()=>{notice.querySelector('span:last-child').textContent='Could not check the AI engine connection. The server may be waking up or unavailable.'});
+async function poll(jobId){for(let i=0;i<90;i++){await new Promise(r=>setTimeout(r,6000));const r=await fetch('/jobs/'+encodeURIComponent(jobId),{headers:{'X-App-Code':codeInput.value}});const d=await r.json();if(!r.ok)throw Error(d.detail||'Could not check job');const state=(d.status||'processing').toUpperCase();setStatus('Job ID: '+jobId+'\nStatus: '+state+'\nYour video is being processed. Keep this page open.');progress.style.width=Math.min(95,12+i)%100+'%';if(state==='SUCCEEDED'&&d.output_url){box.replaceChildren();box.className='status success';const strong=document.createElement('strong');strong.textContent='Your AI edit is ready! ';const link=document.createElement('a');link.href=d.output_url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open finished MP4';box.append(strong,link);progress.style.width='100%';return}if(['FAILED','CANCELED'].includes(state))throw Error(d.error||'The provider could not complete this edit.')}setStatus('This is taking longer than expected. The job may still be processing. Refreshing the page may lose access to this temporary job record.')}
+form.addEventListener('submit',async e=>{e.preventDefault();const video=document.querySelector('#video').files[0];const refs=[...document.querySelector('#refs').files];if(!video){setStatus('Please choose an original video.','error');return}if(refs.length<1||refs.length>8){setStatus('Please select between 1 and 8 replacement-car photos.','error');return}if(video.size>100*1024*1024){setStatus('The video is larger than the 100 MB upload limit.','error');return}if(refs.some(f=>f.size>8*1024*1024)){setStatus('One or more photos exceed the 8 MB limit.','error');return}btn.disabled=true;btn.textContent='Uploading your files…';progress.style.width='8%';setStatus('Uploading your video and photos securely to the processing service…');try{const r=await fetch('/jobs',{method:'POST',headers:{'X-App-Code':codeInput.value},body:new FormData(form)});const d=await r.json();if(!r.ok)throw Error(d.detail||'Request failed');progress.style.width='18%';setStatus('Your AI edit has been submitted.\nJob ID: '+d.job_id+'\nPreparing video processing…');await poll(d.job_id)}catch(err){setStatus('Could not complete the request: '+err.message,'error');progress.style.width='0%'}finally{btn.disabled=false;btn.innerHTML='Start AI car replacement <span aria-hidden="true">→</span>'}});
+</script>
+</body>
+</html>
