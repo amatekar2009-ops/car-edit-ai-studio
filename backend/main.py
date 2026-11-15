@@ -1,13 +1,14 @@
 import os
 import tempfile
 import subprocess
+import hmac
 from pathlib import Path
 from uuid import uuid4
 from datetime import datetime, timezone
 from typing import List, Optional
 
 import httpx
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, Request
 from fastapi.responses import FileResponse
 
 app = FastAPI(title="Car Edit AI Studio API", version="0.2.0")
@@ -17,6 +18,14 @@ RUNWAY_VERSION = "2024-11-06"
 MAX_VIDEO_BYTES = 200 * 1024 * 1024
 MAX_IMAGE_BYTES = 15 * 1024 * 1024
 JOBS = {}
+
+def verify_app_access(request: Request):
+    expected = os.getenv("APP_ACCESS_CODE")
+    supplied = request.headers.get("X-App-Code", "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="The site access code is not configured. Ask the account owner to add APP_ACCESS_CODE in Render.")
+    if not hmac.compare_digest(supplied, expected):
+        raise HTTPException(status_code=401, detail="Incorrect site access code.")
 
 def runway_headers():
     key = os.getenv("RUNWAY_API_KEY")
@@ -83,7 +92,7 @@ def health():
     return {
         "ok": True,
         "service": "car-edit-ai-studio",
-        "engine_connected": bool(os.getenv("RUNWAY_API_KEY")),
+        "engine_connected": bool(os.getenv("RUNWAY_API_KEY") and os.getenv("APP_ACCESS_CODE")),
         "engine": "Runway Product Swap" if os.getenv("RUNWAY_API_KEY") else "waiting_for_server_key",
     }
 
@@ -96,13 +105,14 @@ def home():
 
 @app.post("/jobs")
 async def create_job(
-    video: UploadFile = File(...),
+    request: Request,\n    video: UploadFile = File(...),
     references: List[UploadFile] = File(...),
     original_car: Optional[UploadFile] = File(None),
     duration: int = Form(8),
     quality: str = Form("720p"),
     notes: str = Form(""),
 ):
+    verify_app_access(request)
     if not video.content_type or not video.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Please upload a video file.")
     if not references or len(references) > 10:
@@ -201,7 +211,8 @@ async def create_job(
     return JOBS[job_id]
 
 @app.get("/jobs/{job_id}")
-async def get_job(job_id: str):
+async def get_job(job_id: str, request: Request):
+    verify_app_access(request)
     job = JOBS.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Job not found. Jobs reset if the free server restarts.")
