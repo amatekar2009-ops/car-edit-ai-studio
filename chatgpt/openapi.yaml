@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: Car Edit AI Studio API
+  version: 0.1.0
+  description: Demo API only; video rendering is not implemented.
+servers:
+  - url: https://YOUR-DEPLOYED-APP.onrender.com
+paths:
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Check API status
+      responses:
+        "200":
+          description: API status
+  /jobs/{job_id}:
+    get:
+      operationId: getEditJob
+      summary: Get demo edit request status
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Demo job status
+        "404":
+          description: Job not found
